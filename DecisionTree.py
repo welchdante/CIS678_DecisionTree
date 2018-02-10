@@ -47,3 +47,5 @@ decision_tree = DecisionTree()
 decision_tree.set_binary_metrics(dataset)
 decision_tree.calculate_total_entropy()
 decision_tree.calculate_individual_entropy(dataset, 0)
+
+print("alksjdhf")
