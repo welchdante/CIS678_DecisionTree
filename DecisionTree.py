@@ -8,6 +8,7 @@ class DecisionTree:
 		self.total_positive = 0
 		self.total_negative = 0
 		self.total_entropy = 0
+		self.playoffs_by_stat = {}
 
 	def set_binary_metrics(self, dataset):
 		for row in dataset:
@@ -23,14 +24,12 @@ class DecisionTree:
 		self.total_entropy = (-positive / total) * log(positive / total, 2) - (negative / total) * log(negative / total, 2)
 
 	def calculate_each_entropy(self, dataset, column):
-		playoffs_by_stat = self.create_dictionary(dataset, column)
-		for key in playoffs_by_stat:
-			print(key)
-			print(playoffs_by_stat[key])
-			positive = playoffs_by_stat[key][0]
-			negative = playoffs_by_stat[key][1]
+		self.playoffs_by_stat = self.create_dictionary(dataset, column)
+		for key in self.playoffs_by_stat:
+			positive = self.playoffs_by_stat[key][0]
+			negative = self.playoffs_by_stat[key][1]
 			entropy = self.entropy_function(positive, negative)
-			print(entropy)
+			self.playoffs_by_stat[key][2] = entropy
 		
 	def entropy_function(self, positive, negative):
 		total = positive + negative
@@ -46,7 +45,7 @@ class DecisionTree:
 		#first element is wins, second is losses
 		collection = {}
 		for row in dataset:
-			collection[row[column]] = [0,0]
+			collection[row[column]] = [0,0,0]
 		for row in dataset:
 			if row[-1] == '1':
 				collection[row[column]][0] += 1
@@ -54,8 +53,25 @@ class DecisionTree:
 				collection[row[column]][1] += 1
 		return collection
 
-	def calculate_gain(self, column):
-		print("calc gains")
+	def calculate_gain(self):
+		gain = self.total_entropy - self.get_sum_weighted_entropy()
+		print(gain)
+		return gain
+
+	def get_sum_weighted_entropy(self):
+		sum_weighted_entropy = 0
+		total = 0
+		for key in self.playoffs_by_stat:
+			total += self.playoffs_by_stat[key][0]
+			total += self.playoffs_by_stat[key][1]
+
+		for key in self.playoffs_by_stat:
+			positive = self.playoffs_by_stat[key][0]
+			negative = self.playoffs_by_stat[key][1]
+			total_for_feature = positive + negative
+			entropy = self.playoffs_by_stat[key][2]
+			sum_weighted_entropy += total_for_feature / total * entropy
+		return sum_weighted_entropy
 
 def read_csv(filename):
 	dataset = list()
@@ -73,13 +89,17 @@ dataset = read_csv(filename)
 decision_tree = DecisionTree()
 decision_tree.set_binary_metrics(dataset)
 decision_tree.calculate_total_entropy()
-# for i in range(len(dataset)):
-# 	for j in range(len(dataset[i])):
-# 		print(j)
-decision_tree.calculate_each_entropy(dataset, 0)
 
+# entropy_list = [] 
+# for i in range(0,7):
+# 	decision_tree.calculate_each_entropy(dataset, i)
+# 	entropy_list.append(decision_tree.playoffs_by_stat)
 
+# pprint(entropy_list)
 
+gain_list = []
+decision_tree.calculate_each_entropy(dataset, 3)
+decision_tree.calculate_gain()
 
 
 
