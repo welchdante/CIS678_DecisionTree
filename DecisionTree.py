@@ -102,20 +102,19 @@ for i in range(0,7):
 	gain = decision_tree.calc_gain()
 	decision_tree.gain_dict[i] = gain
 
-pprint(decision_tree.get_max_key_value_pair())
+max_gain = decision_tree.get_max_key_value_pair()
+max_index = max_gain[0][0]
+# pprint(decision_tree.entropy_list)
+# pprint(decision_tree.gain_dict)
+# print(max_index)
+pprint(decision_tree.entropy_list[max_index])
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+for key in decision_tree.entropy_list[max_index]:
+	if decision_tree.entropy_list[max_index][key][2] == 0:
+		if decision_tree.entropy_list[max_index][key][1] == 0:
+			print("We want to predict a 0 for this classification")
+		else: 
+			print("We want to predict a 1 for this classification")
 
 
