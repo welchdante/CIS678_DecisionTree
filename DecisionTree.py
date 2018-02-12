@@ -9,6 +9,8 @@ class DecisionTree:
 		self.total_negative = 0
 		self.total_entropy = 0
 		self.playoffs_by_stat = {}
+		self.entropy_list = []
+		self.gain_dict = {}
 
 	def set_binary_metrics(self, dataset):
 		for row in dataset:
@@ -17,13 +19,13 @@ class DecisionTree:
 			else:
 				self.total_negative += 1
 
-	def calculate_total_entropy(self):
+	def calc_total_entropy(self):
 		positive = self.total_positive
 		negative = self.total_negative
 		total = self.total_positive + self.total_negative
 		self.total_entropy = (-positive / total) * log(positive / total, 2) - (negative / total) * log(negative / total, 2)
 
-	def calculate_each_entropy(self, dataset, column):
+	def calc_each_entropy_for_feature(self, dataset, column):
 		self.playoffs_by_stat = self.create_dictionary(dataset, column)
 		for key in self.playoffs_by_stat:
 			positive = self.playoffs_by_stat[key][0]
@@ -53,9 +55,8 @@ class DecisionTree:
 				collection[row[column]][1] += 1
 		return collection
 
-	def calculate_gain(self):
+	def calc_gain(self):
 		gain = self.total_entropy - self.get_sum_weighted_entropy()
-		print(gain)
 		return gain
 
 	def get_sum_weighted_entropy(self):
@@ -73,6 +74,11 @@ class DecisionTree:
 			sum_weighted_entropy += total_for_feature / total * entropy
 		return sum_weighted_entropy
 
+	def get_max_key_value_pair(self):
+		max_value = max(self.gain_dict.values())
+		max_key = [i for i, j in self.gain_dict.items() if j == max_value]
+		return (max_key, max_value)
+
 def read_csv(filename):
 	dataset = list()
 	with open(filename, 'r') as file:
@@ -88,18 +94,25 @@ dataset = read_csv(filename)
 
 decision_tree = DecisionTree()
 decision_tree.set_binary_metrics(dataset)
-decision_tree.calculate_total_entropy()
+decision_tree.calc_total_entropy()
 
-# entropy_list = [] 
-# for i in range(0,7):
-# 	decision_tree.calculate_each_entropy(dataset, i)
-# 	entropy_list.append(decision_tree.playoffs_by_stat)
+for i in range(0,7):
+	decision_tree.calc_each_entropy_for_feature(dataset, i)
+	decision_tree.entropy_list.append(decision_tree.playoffs_by_stat)
+	gain = decision_tree.calc_gain()
+	decision_tree.gain_dict[i] = gain
 
-# pprint(entropy_list)
+pprint(decision_tree.get_max_key_value_pair())
 
-gain_list = []
-decision_tree.calculate_each_entropy(dataset, 3)
-decision_tree.calculate_gain()
+
+
+
+
+
+
+
+
+
 
 
 
