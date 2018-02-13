@@ -11,6 +11,7 @@ class DecisionTree:
 		self.playoffs_by_stat = {}
 		self.entropy_list = []
 		self.gain_dict = {}
+		self.remaining_data = []
 
 	def set_binary_metrics(self, dataset):
 		for row in dataset:
@@ -79,25 +80,29 @@ class DecisionTree:
 		max_key = [i for i, j in self.gain_dict.items() if j == max_value]
 		return (max_key, max_value)
 
-	def build_tree(self):
+	def build_tree(self, remaining_data):
 		for i in range(0,7):
-			self.calc_each_entropy_for_feature(dataset, i)
+			self.calc_each_entropy_for_feature(remaining_data, i)
 			self.entropy_list.append(self.playoffs_by_stat)
 			gain = self.calc_gain()
-			#print(gain)
 			self.gain_dict[i] = gain
 		max_gain = self.get_max_key_value_pair()
-		print(max_gain)
 		max_index = max_gain[0][0]
 
 		#pprint(self.gain_dict)
 		#pprint(self.entropy_list)
-
 		#pprint(self.entropy_list[max_index])
-		print(self.entropy_list[max_index])
+
+		pprint(self.entropy_list[max_index])
 		for key in self.entropy_list[max_index]:
+			leaf_list = []
 			if self.entropy_list[max_index][key][2] == 0:
 				if self.entropy_list[max_index][key][1] == 0:
+					#take label and add it to some list
+					my_val = 0
+					labels_to_remove = [i for i, j in self.entropy_list[max_index].items() if my_val == j[-1]]
+					print(labels_to_remove)
+					#leaf_list.append(self.entropy_list[max_index])
 					print("We want to predict a 0 for this classification")
 					print("This is also a leaf node")
 					print()
@@ -108,9 +113,17 @@ class DecisionTree:
 			else:
 				#pprint(self.playoffs_by_stat)
 				#pprint(self.entropy_list[max_index][key])
+				labels_to_remove = [i for i, j in self.entropy_list[max_index].items() if 0 != j[-1]]
+				print(labels_to_remove)
 				print("I want to make this data the data I recursively call this function on")
 				print()
 			#self.build_tree(remaining_data)
+		print(leaf_list)
+		for row in remaining_data:
+			if row[max_index] == 2:
+				print("Hey")
+
+			
 
 def read_csv(filename):
 	dataset = list()
@@ -124,11 +137,10 @@ def read_csv(filename):
 
 filename = 'discrete_baseball_labels.csv'
 dataset = read_csv(filename)
-
 decision_tree = DecisionTree()
 decision_tree.set_binary_metrics(dataset)
 decision_tree.calc_total_entropy()
-decision_tree.build_tree()
+decision_tree.build_tree(dataset)
 
 # for i in range(0,7):
 # 	decision_tree.calc_each_entropy_for_feature(dataset, i)
