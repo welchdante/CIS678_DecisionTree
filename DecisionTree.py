@@ -79,6 +79,39 @@ class DecisionTree:
 		max_key = [i for i, j in self.gain_dict.items() if j == max_value]
 		return (max_key, max_value)
 
+	def build_tree(self):
+		for i in range(0,7):
+			self.calc_each_entropy_for_feature(dataset, i)
+			self.entropy_list.append(self.playoffs_by_stat)
+			gain = self.calc_gain()
+			#print(gain)
+			self.gain_dict[i] = gain
+		max_gain = self.get_max_key_value_pair()
+		print(max_gain)
+		max_index = max_gain[0][0]
+
+		#pprint(self.gain_dict)
+		#pprint(self.entropy_list)
+
+		#pprint(self.entropy_list[max_index])
+		print(self.entropy_list[max_index])
+		for key in self.entropy_list[max_index]:
+			if self.entropy_list[max_index][key][2] == 0:
+				if self.entropy_list[max_index][key][1] == 0:
+					print("We want to predict a 0 for this classification")
+					print("This is also a leaf node")
+					print()
+				else: 
+					print("We want to predict a 1 for this classification")
+					print("This is also a leaf node")
+					print()
+			else:
+				#pprint(self.playoffs_by_stat)
+				#pprint(self.entropy_list[max_index][key])
+				print("I want to make this data the data I recursively call this function on")
+				print()
+			#self.build_tree(remaining_data)
+
 def read_csv(filename):
 	dataset = list()
 	with open(filename, 'r') as file:
@@ -89,32 +122,39 @@ def read_csv(filename):
 			dataset.append(row)
 	return dataset
 
-filename = 'discrete_baseball.csv'
+filename = 'discrete_baseball_labels.csv'
 dataset = read_csv(filename)
 
 decision_tree = DecisionTree()
 decision_tree.set_binary_metrics(dataset)
 decision_tree.calc_total_entropy()
+decision_tree.build_tree()
 
-for i in range(0,7):
-	decision_tree.calc_each_entropy_for_feature(dataset, i)
-	decision_tree.entropy_list.append(decision_tree.playoffs_by_stat)
-	gain = decision_tree.calc_gain()
-	decision_tree.gain_dict[i] = gain
+# for i in range(0,7):
+# 	decision_tree.calc_each_entropy_for_feature(dataset, i)
+# 	decision_tree.entropy_list.append(decision_tree.playoffs_by_stat)
+# 	gain = decision_tree.calc_gain()
+# 	decision_tree.gain_dict[i] = gai
 
-max_gain = decision_tree.get_max_key_value_pair()
-max_index = max_gain[0][0]
+
 # pprint(decision_tree.entropy_list)
 # pprint(decision_tree.gain_dict)
 # print(max_index)
-pprint(decision_tree.entropy_list[max_index])
+
+#pprint(decision_tree.entropy_list[max_index])
 
 
-for key in decision_tree.entropy_list[max_index]:
-	if decision_tree.entropy_list[max_index][key][2] == 0:
-		if decision_tree.entropy_list[max_index][key][1] == 0:
-			print("We want to predict a 0 for this classification")
-		else: 
-			print("We want to predict a 1 for this classification")
+		#print(decision_tree.entropy_list[max_index][key])
+
+
+
+
+
+
+
+
+
+
+
 
 
