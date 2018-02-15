@@ -13,6 +13,8 @@ class DecisionTree:
 		self.gain_dict = {}
 		self.remaining_data = []
 
+		self.recursion = 0
+
 	def set_binary_metrics(self, dataset):
 		for row in dataset:
 			if int(row[-1]) == 1:
@@ -26,13 +28,16 @@ class DecisionTree:
 		total = self.total_positive + self.total_negative
 		self.total_entropy = (-positive / total) * log(positive / total, 2) - (negative / total) * log(negative / total, 2)
 
-	def calc_each_entropy_for_feature(self, dataset, column):
-		self.playoffs_by_stat = self.create_dictionary(dataset, column)
+	def calc_each_entropy_for_feature(self, data, column):
+		#print("Calculating entropy for feature")
+		self.playoffs_by_stat = self.create_dictionary(data, column)
+		#pprint(self.playoffs_by_stat)
 		for key in self.playoffs_by_stat:
 			positive = self.playoffs_by_stat[key][0]
 			negative = self.playoffs_by_stat[key][1]
 			entropy = self.entropy_function(positive, negative)
 			self.playoffs_by_stat[key][2] = entropy
+		#pprint(self.playoffs_by_stat)
 		
 	def entropy_function(self, positive, negative):
 		total = positive + negative
@@ -44,12 +49,12 @@ class DecisionTree:
 			entropy = -(positive / total) * log(positive / total, 2) - (negative / total) * log(negative / total, 2)
 		return entropy
 
-	def create_dictionary(self, dataset, column):
+	def create_dictionary(self, data, column):
 		#first element is wins, second is losses
 		collection = {}
-		for row in dataset:
+		for row in data:
 			collection[row[column]] = [0,0,0]
-		for row in dataset:
+		for row in data:
 			if row[-1] == '1':
 				collection[row[column]][0] += 1
 			else:
@@ -81,19 +86,27 @@ class DecisionTree:
 		return (max_key, max_value)
 
 	def build_tree(self, remaining_data):
-		for i in range(0,7):
+		# print("Data to do the stuff to")
+		# print(len(remaining_data))
+		# pprint(remaining_data)
+
+		for i in range(0,6):
 			self.calc_each_entropy_for_feature(remaining_data, i)
+			#pprint(self.playoffs_by_stat)
 			self.entropy_list.append(self.playoffs_by_stat)
 			gain = self.calc_gain()
 			self.gain_dict[i] = gain
+		#pprint(self.entropy_list)
+		#pprint(self.gain_dict)
 		max_gain = self.get_max_key_value_pair()
 		max_index = max_gain[0][0]
-
+		print(max_gain)
+		print(max_index)
 		#pprint(self.gain_dict)
 		#pprint(self.entropy_list)
 		#pprint(self.entropy_list[max_index])
 
-		pprint(self.entropy_list[max_index])
+		#pprint(self.entropy_list[max_index])
 		for key in self.entropy_list[max_index]:
 			leaf_list = []
 			if self.entropy_list[max_index][key][2] == 0:
@@ -101,28 +114,34 @@ class DecisionTree:
 					#take label and add it to some list
 					my_val = 0
 					labels_to_remove = [i for i, j in self.entropy_list[max_index].items() if my_val == j[-1]]
-					print(labels_to_remove)
+					#print(labels_to_remove)
 					#leaf_list.append(self.entropy_list[max_index])
-					print("We want to predict a 0 for this classification")
-					print("This is also a leaf node")
+					#print("We want to predict a 0 for this classification")
+					#print("This is also a leaf node")
 					print()
 				else: 
-					print("We want to predict a 1 for this classification")
-					print("This is also a leaf node")
+					#print("We want to predict a 1 for this classification")
+					#print("This is also a leaf node")
 					print()
 			else:
 				#pprint(self.playoffs_by_stat)
 				#pprint(self.entropy_list[max_index][key])
-				labels_to_remove = [i for i, j in self.entropy_list[max_index].items() if 0 != j[-1]]
-				print(labels_to_remove)
-				print("I want to make this data the data I recursively call this function on")
+				labels_to_keep = [i for i, j in self.entropy_list[max_index].items() if 0 != j[-1]]
+				#print(labels_to_keep)
+				#print("I want to make this data the data I recursively call this function on")
 				print()
 			#self.build_tree(remaining_data)
-		print(leaf_list)
+		#print(leaf_list)
+		new_data = []
 		for row in remaining_data:
-			if row[max_index] == 2:
-				print("Hey")
+			if row[max_index] in labels_to_keep:
+				new_data.append(row)
+		#pprint(new_data)
+		#pprint(len(new_data))
 
+		if self.recursion == 0:
+			self.recursion += 1
+			self.build_tree(new_data)
 			
 
 def read_csv(filename):
